@@ -24,7 +24,7 @@ Citizen.CreateThread(function()
         if Config.DebugMode then print('[Freech Ban Sync] Thread Called') end
         local src = source
         local identifiers = ExtractIdentifiers(src)
-        local discordId = identifiers.discord:gsub("discord:", "")  -- This line removes the "discord:" part from the discord ID
+        local discordId = identifiers.discord:gsub("discord:", "")  
         local hasDiscord, isBanned = CheckBan(discordId)
         if isBanned then
             DropPlayer(src, Config.Setup.BanMessage)
