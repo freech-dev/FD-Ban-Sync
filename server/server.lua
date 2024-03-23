@@ -1,26 +1,26 @@
-local localBans = {}
-
 -------------------
 -- SERVER EVENTS --
 -------------------
 
 AddEventHandler('playerConnecting', function(name, setKickReason)
-    if Config.DebugMode then print('[Freech Framework] Player Connecting Called') end
+    if Config.DebugMode then print('[Freech Ban Sync] Player Connecting Called') end
     local src = source
     local identifiers = ExtractIdentifiers(src)
     local identifiers = ExtractIdentifiers(source)
     local discordId = identifiers.discord:gsub("discord:", "")  -- This line removes the "discord:" part from the discord ID
 
     
-
-    if not hasDiscord then
-        DropPlayer(src, "[Freech Framework] Discord identifier not found please relog")
-        CancelEvent()
-        if Config.DebugMode then print("[Freech Framework] Kicked Player " .. name .. " ID: " .. src .. " for no discord identifier") end
-    else
-        LoadPermissions(src)
-        if Config.DebugMode then print("[Freech Framework] Permissions Loaded for " .. name .. " ID: " .. src) end
-    end
+    CheckBan(discordId, function(hasDiscord, isBanned)
+        if not hasDiscord then
+            DropPlayer(src, "[Freech Ban Sync] Discord identifier not found please relog")
+            CancelEvent()
+            if Config.DebugMode then print("[Freech Ban Sync] Kicked Player " .. name .. " ID: " .. src .. " for no discord identifier") end
+        elseif isBanned then 
+            DropPlayer(src, "[Freech Ban Sync] " .. Config.Setup.BanMessage)
+            CancelEvent()
+            if Config.DebugMode then print("[Freech Ban Sync] Kicked Player " .. name .. " ID: " .. src .. " for no discord identifier") end
+        end
+    end)
 end)
 
 -------------
@@ -29,13 +29,37 @@ end)
 
 Citizen.CreateThread(function()
     while true do Wait(10000)
-        
+        -- Check players in server if they are banned or not
     end 
 end)
 
 ---------------
 -- FUNCTIONS --
 ---------------
+
+function CheckBan(userId)
+    if Config.DebugMode then print('[Freech Ban Sync] CheckBan Called') end
+    PerformHttpRequest(
+        'https://discordapp.com/api/guilds/' .. Config.Setup.GuildId .. '/bans/' .. userId,
+        function(err, responseCode, body)
+            local hasDiscord = true
+            local isBanned = false
+            if err == 200 then
+                isBanned = true
+            elseif err == 404 then
+                hasDiscord = false
+            end
+            if Config.DebugMode then print('[Freech Ban Sync] CheckBan Returned ' .. tostring(hasDiscord) .. ' - ' .. tostring(isBanned)) end
+            if type(CheckBanCallback) == 'function' then
+                CheckBanCallback(hasDiscord, isBanned)
+            end
+        end,
+        'GET',
+        '',
+        {['Authorization'] = 'Bot ' .. Config.Setup.BotToken,
+        ['Content-Type'] = 'application/json'}
+    )
+end
 
 function ExtractIdentifiers(src)
     local identifiers = {
