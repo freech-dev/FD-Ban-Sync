@@ -32,18 +32,20 @@ end)
 -- THREADS --
 ------------- 
 
-Citizen.CreateThread(function()
-    while true do Wait(10000)
-        if Config.DebugMode then print('[Freech Ban Sync] Thread Called') end
-        local src = source
-        local identifiers = ExtractIdentifiers(src)
-        local discordId = identifiers.discord:gsub("discord:", "")  
-        local hasDiscord, isBanned = CheckBan(discordId)
-        if isBanned then
-            DropPlayer(src, Config.Setup.BanMessage)
-        end    
-    end 
-end)
+if Config.BanThread then 
+    Citizen.CreateThread(function()
+        while true do Wait(10000)
+            if Config.DebugMode then print('[Freech Ban Sync] Thread Called') end
+            local src = source
+            local identifiers = ExtractIdentifiers(src)
+            local discordId = identifiers.discord:gsub("discord:", "")  
+            local hasDiscord, isBanned = CheckBan(discordId)
+            if isBanned then
+                DropPlayer(src, Config.Setup.BanMessage)
+            end    
+        end 
+    end)
+end
 
 ---------------
 -- FUNCTIONS --

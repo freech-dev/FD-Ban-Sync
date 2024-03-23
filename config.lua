@@ -1,6 +1,7 @@
 Config = {}
 
 Config.DebugMode = true
+Config.BanThread = false -- This might hit ratelimits at higher playercounts
 
 Config.Setup = {
     BotToken = "your token here",
