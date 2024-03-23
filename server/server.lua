@@ -2,7 +2,7 @@
 -- SERVER EVENTS --
 -------------------
 
-AddEventHandler('playerConnecting', function(name, setKickReason)
+AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
     if Config.DebugMode then print('[Freech Ban Sync] Player Connecting Called') end
     local src = source
     local identifiers = ExtractIdentifiers(src)
@@ -12,6 +12,7 @@ AddEventHandler('playerConnecting', function(name, setKickReason)
     Wait(0)
     deferrals.update(string.format('[Freech Ban Sync] Checking %s', name))
     
+
     hasDiscord, isBanned = CheckBan(discordId)
     
     if not hasDiscord then
@@ -33,7 +34,14 @@ end)
 
 Citizen.CreateThread(function()
     while true do Wait(10000)
-        -- Check players in server if they are banned or not
+        if Config.DebugMode then print('[Freech Ban Sync] Thread Called') end
+        local src = source
+        local identifiers = ExtractIdentifiers(src)
+        local discordId = identifiers.discord:gsub("discord:", "")  
+        local hasDiscord, isBanned = CheckBan(discordId)
+        if isBanned then
+            DropPlayer(src, Config.Setup.BanMessage)
+        end    
     end 
 end)
 
@@ -62,6 +70,7 @@ function CheckBan(userId)
         ['Content-Type'] = 'application/json'}
     )
 end
+
 
 function ExtractIdentifiers(src)
     local identifiers = {
