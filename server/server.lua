@@ -8,7 +8,9 @@ AddEventHandler('playerConnecting', function(name, setKickReason)
     local identifiers = ExtractIdentifiers(src)
     local identifiers = ExtractIdentifiers(source)
     local discordId = identifiers.discord:gsub("discord:", "")  -- This line removes the "discord:" part from the discord ID
-
+    deferrals.defer()
+    Wait(0)
+    deferrals.update(string.format('[Freech Ban Sync] Checking %s', name))
     
     CheckBan(discordId, function(hasDiscord, isBanned)
         if not hasDiscord then
@@ -19,6 +21,8 @@ AddEventHandler('playerConnecting', function(name, setKickReason)
             DropPlayer(src, "[Freech Ban Sync] " .. Config.Setup.BanMessage)
             CancelEvent()
             if Config.DebugMode then print("[Freech Ban Sync] Kicked Player " .. name .. " ID: " .. src .. " for being banned") end
+        elseif not isBanned then
+            defferals.done('[Freech Ban Sync] You are not banned')
         end
     end)
 end)
