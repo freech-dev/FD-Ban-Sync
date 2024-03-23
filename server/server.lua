@@ -2,7 +2,7 @@
 -- SERVER EVENTS --
 -------------------
 
-AddEventHandler('playerConnecting', function(name, setKickReason)
+AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
     if Config.DebugMode then print('[Freech Ban Sync] Player Connecting Called') end
     local src = source
     local identifiers = ExtractIdentifiers(src)
@@ -12,19 +12,7 @@ AddEventHandler('playerConnecting', function(name, setKickReason)
     Wait(0)
     deferrals.update(string.format('[Freech Ban Sync] Checking %s', name))
     
-    CheckBan(discordId, function(hasDiscord, isBanned)
-        if not hasDiscord then
-            DropPlayer(src, "[Freech Ban Sync] Discord identifier not found please relog")
-            CancelEvent()
-            if Config.DebugMode then print("[Freech Ban Sync] Kicked Player " .. name .. " ID: " .. src .. " for no discord identifier") end
-        elseif isBanned then 
-            DropPlayer(src, "[Freech Ban Sync] " .. Config.Setup.BanMessage)
-            CancelEvent()
-            if Config.DebugMode then print("[Freech Ban Sync] Kicked Player " .. name .. " ID: " .. src .. " for being banned") end
-        elseif not isBanned then
-            defferals.done('[Freech Ban Sync] You are not banned')
-        end
-    end)
+    CheckBan(discordId)
 end)
 
 -------------
@@ -33,7 +21,14 @@ end)
 
 Citizen.CreateThread(function()
     while true do Wait(10000)
-        -- Check players in server if they are banned or not
+        if Config.DebugMode then print('[Freech Ban Sync] Thread Called') end
+        local src = source
+        local identifiers = ExtractIdentifiers(src)
+        local discordId = identifiers.discord:gsub("discord:", "")  -- This line removes the "discord:" part from the discord ID
+        local hasDiscord, isBanned = CheckBan(discordId)
+        if isBanned then
+            DropPlayer(src, Config.Setup.BanMessage)
+        end    
     end 
 end)
 
@@ -54,9 +49,7 @@ function CheckBan(userId)
                 hasDiscord = false
             end
             if Config.DebugMode then print('[Freech Ban Sync] CheckBan Returned ' .. tostring(hasDiscord) .. ' - ' .. tostring(isBanned)) end
-            if type(CheckBanCallback) == 'function' then
-                CheckBanCallback(hasDiscord, isBanned)
-            end
+            return hasDiscord, isBanned
         end,
         'GET',
         '',
@@ -64,6 +57,7 @@ function CheckBan(userId)
         ['Content-Type'] = 'application/json'}
     )
 end
+
 
 function ExtractIdentifiers(src)
     local identifiers = {
