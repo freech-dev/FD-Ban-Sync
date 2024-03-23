@@ -18,7 +18,7 @@ AddEventHandler('playerConnecting', function(name, setKickReason)
         elseif isBanned then 
             DropPlayer(src, "[Freech Ban Sync] " .. Config.Setup.BanMessage)
             CancelEvent()
-            if Config.DebugMode then print("[Freech Ban Sync] Kicked Player " .. name .. " ID: " .. src .. " for no discord identifier") end
+            if Config.DebugMode then print("[Freech Ban Sync] Kicked Player " .. name .. " ID: " .. src .. " for being banned") end
         end
     end)
 end)
