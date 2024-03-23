@@ -54,9 +54,7 @@ function CheckBan(userId)
                 hasDiscord = false
             end
             if Config.DebugMode then print('[Freech Ban Sync] CheckBan Returned ' .. tostring(hasDiscord) .. ' - ' .. tostring(isBanned)) end
-            if type(CheckBanCallback) == 'function' then
-                CheckBanCallback(hasDiscord, isBanned)
-            end
+            return hasDiscord, isBanned
         end,
         'GET',
         '',
