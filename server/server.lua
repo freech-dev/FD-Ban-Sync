@@ -12,7 +12,20 @@ AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
     Wait(0)
     deferrals.update(string.format('[Freech Ban Sync] Checking %s', name))
     
-    CheckBan(discordId)
+
+    hasDiscord, isBanned = CheckBan(discordId)
+    
+    if not hasDiscord then
+        DropPlayer(src, "[Freech Ban Sync] Discord identifier not found please relog")
+        CancelEvent()
+        if Config.DebugMode then print("[Freech Ban Sync] Kicked Player " .. name .. " ID: " .. src .. " for no discord identifier") end
+    elseif isBanned then 
+        DropPlayer(src, "[Freech Ban Sync] " .. Config.Setup.BanMessage)
+        CancelEvent()
+        if Config.DebugMode then print("[Freech Ban Sync] Kicked Player " .. name .. " ID: " .. src .. " for being banned") end
+    elseif not isBanned then
+        defferals.done('[Freech Ban Sync] You are not banned')
+    end
 end)
 
 -------------
