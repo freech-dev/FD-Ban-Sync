@@ -1,11 +1,10 @@
-fx_version('cerulean')
-games({ 'gta5' })
+fx_version 'cerulean'
+games { 'gta5' }
 
-author ('freech_dev')
-description ('Ban Sync script')
+author 'freech_dev'
+description 'Ban Sync script'
 
-shared_script('config.lua');
-
-server_scripts({
-    'server/server.lua'
-});
+server_scripts {
+    'config.lua',
+    'server/server.lua',
+}
