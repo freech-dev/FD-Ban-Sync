@@ -1,6 +1,6 @@
 Config = {}
 
-Config.DebugMode = true
+Config.DebugMode = false
 Config.BanThread = false -- This might hit ratelimits at higher playercounts
 
 Config.Setup = {
